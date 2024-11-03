@@ -1,0 +1,16 @@
+{
+  "name": "xmind",
+  "version": "1.0.0",
+  "description": "A project to convert XMind files to Markdown.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "adm-zip-iconv": "^0.4.9",
+    "iconv-lite": "^0.6.3",
+    "express": "^4.18.2",
+    "multer": ""
+  },
+  "license": "GPL-3.0"
+}
