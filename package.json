@@ -1,7 +1,7 @@
 {
   "name": "xmind",
   "version": "1.0.0",
-  "description": "A project to convert XMind files to Markdown.",
+  "description": "Project to convert XMind files to Markdown.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"
