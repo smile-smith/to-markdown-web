@@ -4,7 +4,7 @@
   "description": "Project to convert XMind files to Markdown.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/start.js"
   },
   "dependencies": {
     "adm-zip-iconv": "^0.4.9",
