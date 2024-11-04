@@ -3,14 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XMind 文件转换器</title>
+    <title>XMind 转换器</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .drop-zone {
+            border: 2px dashed #0087F7;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        .drop-zone:hover {
+            background-color: #f1f1f1;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #file_list {
+            width: 80%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 5px;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
+            position: relative;
+        }
+        .progress-text {
+            position: absolute;
+            right: 0;
+            color: #000;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>上传 .xmind 文件</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <h1>XMind 转换器</h1>
+    <div class="drop-zone" id="drop_zone">
+        <p>拖拽 .xmind 文件到这里上传</p>
+    </div>
+    <form id="file_form" action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="files" accept=".xmind" multiple required>
         <button type="submit">上传</button>
     </form>
+    <h2>已上传文件列表</h2>
+    <div id="file_list"></div>
+
+    <script>
+        const dropZone = document.getElementById('drop_zone');
+        const fileForm = document.getElementById('file_form');
+        const fileListDiv = document.getElementById('file_list');
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('files', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    const progressBar = file.progressBar;
+                    progressBar.style.width = percentComplete + '%';
+                    progressBar.querySelector('.progress-text').textContent = percentComplete + '%';
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const responseHTML = xhr.responseText;
+                    fileListDiv.innerHTML += responseHTML; // 添加下载链接
+                    console.log('文件上传成功');
+                } else {
+                    console.error('文件上传失败');
+                }
+            };
+
+            xhr.onerror = function() {
+                console.error('文件上传出错');
+            };
+
+            xhr.send(formData);
+        }
+
+        function addFileToList(file) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <span>${file.name}</span>
+                <div class="progress-bar" style="width: 0%;">
+                    <span class="progress-text">0%</span>
+                </div>
+            `;
+            fileListDiv.appendChild(fileItem);
+            file.progressBar = fileItem.querySelector('.progress-bar');
+        }
+
+        dropZone.addEventListener('dragover', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const files = event.dataTransfer.files;
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/x-xmind' || file.name.endsWith('.xmind')) {
+                    addFileToList(file);
+                    uploadFile(file);
+                }
+            });
+        });
+
+        fileForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const files = fileForm.querySelector('input[type="file"]').files;
+            Array.from(files).forEach(file => {
+                addFileToList(file);
+                uploadFile(file);
+            });
+        });
+
+        document.addEventListener('dragover', (event) => {
+            event.preventDefault();
+        });
+
+        document.addEventListener('drop', (event) => {
+            event.preventDefault();
+        });
+    </script>
 </body>
 </html>
-

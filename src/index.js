@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname); // 保持源文件名
+    cb(null, file.originalname);
   }
 });
 
@@ -44,7 +44,7 @@ const upload = multer({
 });
 
 app.use(express.static('public'));
-app.use(express.static(downloadsDir)); // 提供 downloads 目录的静态文件
+app.use(express.static(downloadsDir));
 
 app.post('/upload', upload.array('files'), (req, res) => {
   const markdownLinks = [];
@@ -53,22 +53,25 @@ app.post('/upload', upload.array('files'), (req, res) => {
     const filePath = path.join(uploadsDir, file.originalname);
     const filename = file.originalname.replace('.xmind', '');
     const unzipPath = path.join(unzipDir, filename);
-    const markdownFilePath = path.join(downloadsDir, `${filename}.md`); // 生成的 Markdown 文件保存到 downloads 目录
+    const markdownFilePath = path.join(downloadsDir, `${filename}.md`);
 
     unzip(filePath, unzipPath);
     toMarkdown(filename, unzipPath, markdownFilePath);
     
     // 生成下载链接
-    markdownLinks.push(`<a href="/${filename}.md" download>${filename}.md</a><br>`);
+    markdownLinks.push(`<a href="${filename}.md" download>${filename}.md</a><br>`);
   };
 
   req.files.forEach(processFile);
 
-  // 不删除源文件，返回所有下载链接
-  res.send(markdownLinks.join(''));
+  // 返回所有下载链接
+  if (markdownLinks.length > 0) {
+    res.send(markdownLinks.join(''));
+  } else {
+    res.status(400).send('未上传有效的文件');
+  }
 });
 
-// 添加支持断点续传的下载路由
 app.get('/download/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(downloadsDir, filename);
@@ -115,7 +118,7 @@ function unzip(filepath, target) {
 
 function toMarkdown(filename, xmindDir, markdownFilePath) {
   let files = fs.readdirSync(xmindDir);
-  const fd = fs.openSync(markdownFilePath, 'w+'); // 将文件写入 downloads 目录
+  const fd = fs.openSync(markdownFilePath, 'w+');
   
   for (let file of files) {
     let absfile = path.join(xmindDir, file);
@@ -159,4 +162,3 @@ app.listen(PORT, (err) => {
     console.log(`Server is running on http://localhost:${PORT}`);
   }
 });
-
