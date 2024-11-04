@@ -31,7 +31,7 @@ npm install
 
 运行项目
 ```shell
-node start 
+node src/start.js
 ```
 访问 http://IP:3000
 
