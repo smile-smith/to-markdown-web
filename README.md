@@ -9,7 +9,7 @@
 
 ## 项目结构
 ```
-├── downloads
+├── downloads        #  下载目录
 ├── LICENSE
 ├── package.json
 ├── public
@@ -17,8 +17,8 @@
 ├── README.md
 ├── src
 │   └── index.js
-├── unzip
-└── uploads
+├── unzip            #  解压目录
+└── uploads          #  上传目录
 ```
 
 ```shell
