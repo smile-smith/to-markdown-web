@@ -23,14 +23,19 @@
 
 ## 使用方式
 
-首先安装第三方库
+首先拉取仓库
+```bash
+git clone https://github.com/smile-smith/to-markdown-web.git
+```
 
-```shell
+安装第三方库
+
+```bash
 npm install 
 ```
 
 运行项目
-```shell
+```bash
 node src/start.js
 ```
 访问 http://IP:3000
